@@ -1,11 +1,9 @@
 node_modules/
-.env
-.env.*
-!.env.example
 dist/
-coverage/
+.env
+data/
+*.sqlite*
 *.log
-.DS_Store
-.vscode/
 .idea/
-data/*.db
+.vscode/
+coverage/
