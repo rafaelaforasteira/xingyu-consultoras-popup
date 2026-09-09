@@ -2,6 +2,8 @@ import './ConsultantPopup.css';
 import { defaults, type Consultant, type PopupOptions } from './config';
 import { localRotation } from './rotation';
 import { trackClick } from './analytics';
+import { attribution } from './analytics';
+import { buildWhatsappMessage, buildWhatsappUrl } from '../shared/whatsapp';
 
 export class XingyuConsultantPopup {
   private trigger: HTMLElement; private overlay: HTMLDivElement; private dialog: HTMLElement;
@@ -10,7 +12,7 @@ export class XingyuConsultantPopup {
   private constructor(options: PopupOptions) {
     const trigger = typeof options.trigger === 'string' ? document.querySelector<HTMLElement>(options.trigger) : options.trigger;
     if (!trigger) throw new Error('Xingyu popup trigger not found'); this.trigger = trigger;
-    this.options = { apiUrl: options.apiUrl ?? defaults.apiUrl, consultants: options.consultants ?? defaults.consultants, message: options.message ?? defaults.message };
+    this.options = { apiUrl: options.apiUrl ?? defaults.apiUrl, consultants: options.consultants ?? defaults.consultants };
     this.overlay = this.build(); this.dialog = this.overlay.querySelector('[role="dialog"]')!; document.body.append(this.overlay); this.bind();
   }
   static init(options: PopupOptions) { return new XingyuConsultantPopup(options); }
@@ -39,7 +41,7 @@ export class XingyuConsultantPopup {
   close() { if (!this.isOpen) return; this.overlay.classList.remove('is-open'); this.isOpen = false; document.body.style.overflow = ''; document.body.style.paddingRight = this.scrollbarPadding; setTimeout(() => { if (!this.isOpen) this.overlay.hidden = true; }, 180); this.previousFocus?.focus(); }
   private render(items: Consultant[]) {
     const list = this.overlay.querySelector('.xingyu-consultant-popup__list')!; list.textContent = '';
-    items.forEach((item, index) => { const link = document.createElement('a'); link.className = 'xingyu-consultant-popup__consultant'; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.href = `https://wa.me/${item.whatsapp}?text=${encodeURIComponent(this.options.message)}`;
+    items.forEach((item, index) => { const link = document.createElement('a'); link.className = 'xingyu-consultant-popup__consultant'; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.href = buildWhatsappUrl({ phone:item.whatsapp, message:buildWhatsappMessage({ consultantName:item.name, source:attribution().utm_source }) });
       link.innerHTML = `<span class="xingyu-consultant-popup__initial" aria-hidden="true">${item.name.charAt(0)}</span><span class="xingyu-consultant-popup__copy"><strong>${item.name}</strong><small>Falar pelo WhatsApp</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>`;
       link.addEventListener('click', () => trackClick(this.options.apiUrl, item.id, index + 1)); list.append(link); });
   }

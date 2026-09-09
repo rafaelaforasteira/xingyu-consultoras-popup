@@ -1,3 +1,8 @@
 import './demo.css';
-import { XingyuConsultantPopup } from '../widget/ConsultantPopup';
-XingyuConsultantPopup.init({ trigger: '#falar-com-consultora' });
+import { consultants, type Consultant } from '../shared/consultants';
+import { localRotation } from '../widget/rotation';
+import { attribution, trackClick } from '../widget/analytics';
+import { buildWhatsappMessage, buildWhatsappUrl } from '../shared/whatsapp';
+async function getConsultants(): Promise<Consultant[]> { try { const response=await fetch('/api/rotation/next',{method:'POST'}); if(!response.ok) throw new Error(String(response.status)); return (await response.json() as {consultants:Consultant[]}).consultants; } catch(error) { if(import.meta.env.DEV) console.warn('[Xingyu] usando rodízio local',error); return localRotation(consultants); } }
+function render(items:Consultant[]){const list=document.querySelector<HTMLDivElement>('#consultants-list')!;list.textContent='';const source=attribution().utm_source;items.forEach((consultant,index)=>{const link=document.createElement('a');const message=buildWhatsappMessage({consultantName:consultant.name,source});link.className='xingyu-consultants__card';link.target='_blank';link.rel='noopener noreferrer';link.href=buildWhatsappUrl({phone:consultant.whatsapp,message});link.setAttribute('aria-label',`Falar com ${consultant.name} pelo WhatsApp`);link.innerHTML=`<span class="xingyu-consultants__avatar" aria-hidden="true">${consultant.name[0]}</span><span class="xingyu-consultants__card-copy"><strong>${consultant.name}</strong><small>Falar pelo WhatsApp</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>`;link.addEventListener('click',()=>trackClick('',consultant.id,index+1));list.append(link);});}
+void getConsultants().then(render);

@@ -10,7 +10,7 @@ import { claimRotationCounter } from './rotation-repository.js';
 const textFields = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'referrer'] as const;
 export function createApp(db: XingyuDatabase = createDatabase()) {
   const app = express();
-  const allowed = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173,http://localhost:5178,https://lp.xingyujewelry.com.br').split(',').map(v => v.trim());
+  const allowed = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173,http://localhost:5178,https://consultoras.xingyujewelry.com.br,https://lp.xingyujewelry.com.br').split(',').map(v => v.trim());
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(cors({ origin: (origin, callback) => callback(null, !origin || allowed.includes(origin)) }));
   app.use(express.json({ limit: '8kb' }));

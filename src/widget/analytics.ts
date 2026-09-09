@@ -1,6 +1,7 @@
 const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as const;
-export function attribution() {
-  const params = new URLSearchParams(location.search); const data: Record<string, string> = {};
+export interface Attribution { utm_source?: string; utm_medium?: string; utm_campaign?: string; utm_content?: string; utm_term?: string; referrer?: string; }
+export function attribution(): Attribution {
+  const params = new URLSearchParams(location.search); const data: Attribution = {};
   for (const key of utmKeys) { const value = params.get(key); if (value) data[key] = value; }
   if (document.referrer) data.referrer = document.referrer; return data;
 }
