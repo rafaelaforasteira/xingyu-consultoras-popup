@@ -1,13 +1,267 @@
-:root { --xingyu-purple: #ff6b2c; --xingyu-wine: #ff6b2c; --xingyu-blush: #fff8f3; --xingyu-gold: #f1a36e; --xingyu-ink: #565254; --xingyu-muted: #716b6d; --xingyu-z-modal: 1200; }
-.xingyu-consultant-popup,.xingyu-consultant-popup * { box-sizing: border-box; }
-.xingyu-consultant-popup { position: fixed; inset: 0; z-index: var(--xingyu-z-modal); display: grid; place-items: center; padding: max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left)); background: rgb(30 14 27 / 62%); opacity: 0; transition: opacity 180ms ease; font-family: Montserrat, Arial, sans-serif; }
-.xingyu-consultant-popup[hidden] { display: none; }.xingyu-consultant-popup.is-open { opacity: 1; }
-.xingyu-consultant-popup__dialog { position: relative; width: min(100%,480px); max-height: min(720px,calc(100dvh - 40px)); overflow: auto; padding: 38px 34px 32px; border: 1px solid #ffc491; border-radius: 12px; background: #fff; box-shadow: 0 22px 65px rgb(80 55 43 / 18%); color: var(--xingyu-ink); text-align: center; transform: translateY(10px) scale(.985); transition: transform 180ms ease; outline: none; }
-.is-open .xingyu-consultant-popup__dialog { transform: none; }.xingyu-consultant-popup__close { position: absolute; top: 14px; right: 14px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; color: var(--xingyu-wine); background: transparent; cursor: pointer; }.xingyu-consultant-popup__close svg { width: 21px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-.xingyu-consultant-popup__brand { color: var(--xingyu-purple); font-family: Georgia,serif; font-size: 21px; letter-spacing: .24em; margin-left: .24em; }.xingyu-consultant-popup__ornament { width: 34px; height: 1px; margin: 16px auto 18px; background: var(--xingyu-gold); }
-.xingyu-consultant-popup h2 { margin: 0; color: var(--xingyu-wine); font-family: Georgia,'Times New Roman',serif; font-size: clamp(27px,5vw,34px); font-weight: 400; line-height: 1.15; }.xingyu-consultant-popup p { max-width: 360px; margin: 12px auto 0; color: var(--xingyu-muted); font-size: 14px; line-height: 1.6; }
-.xingyu-consultant-popup__list { display: grid; gap: 10px; margin-top: 25px; }.xingyu-consultant-popup__consultant { display: flex; align-items: center; min-height: 72px; padding: 11px 16px 11px 12px; border: 1px solid #e5d8df; border-radius: 3px; color: var(--xingyu-ink); background: #fff; text-align: left; text-decoration: none; transition: border-color 150ms ease,background 150ms ease,transform 150ms ease; }.xingyu-consultant-popup__consultant:hover { border-color: var(--xingyu-gold); background: #fdf9f7; transform: translateY(-1px); }
-.xingyu-consultant-popup__initial { flex: 0 0 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--xingyu-purple); font-family: Georgia,serif; font-size: 21px; }.xingyu-consultant-popup__copy { display: grid; gap: 4px; margin-left: 13px; }.xingyu-consultant-popup__copy strong { color: var(--xingyu-wine); font-family: Georgia,serif; font-size: 18px; font-weight: 400; }.xingyu-consultant-popup__copy small { color: var(--xingyu-muted); font-size: 12px; }.xingyu-consultant-popup__consultant>svg { width: 21px; margin-left: auto; fill: none; stroke: var(--xingyu-gold); stroke-width: 1.5; }
-.xingyu-consultant-popup :focus-visible { outline: 3px solid rgb(91 33 79 / 35%); outline-offset: 3px; }
-@media(max-width:520px){.xingyu-consultant-popup{align-items:end;padding:12px 12px max(12px,env(safe-area-inset-bottom))}.xingyu-consultant-popup__dialog{max-height:calc(100dvh - 24px);padding:34px 20px 24px;border-radius:4px}.xingyu-consultant-popup__consultant{min-height:74px}}
-@media(prefers-reduced-motion:reduce){.xingyu-consultant-popup,.xingyu-consultant-popup__dialog,.xingyu-consultant-popup__consultant{transition:none}}
+@font-face {
+  font-family: "Joly Display";
+  src: url("/fonts/JolyDisplay-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Joly Display";
+  src: url("/fonts/JolyDisplay-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Joly Display";
+  src: url("/fonts/JolyDisplay-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Joly Display";
+  src: url("/fonts/JolyDisplay-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --xingyu-orange: #ff4500;
+  --xingyu-orange-50: #fff7ed;
+  --xingyu-orange-100: #ffedd5;
+  --xingyu-orange-200: #ffd7a8;
+  --xingyu-orange-300: #fdba74;
+  --xingyu-orange-400: #fb923c;
+  --xingyu-orange-500: #f97316;
+  --xingyu-peru: #cd853f;
+  --xingyu-ink: rgb(0 0 0 / 70%);
+  --xingyu-muted: rgb(0 0 0 / 55%);
+  --xingyu-soft: rgb(0 0 0 / 40%);
+  --xingyu-z-modal: 1200;
+  --xingyu-shadow: 0 20px 60px rgb(251 146 60 / 10%);
+}
+
+.xingyu-consultant-popup,
+.xingyu-consultant-popup * {
+  box-sizing: border-box;
+}
+
+.xingyu-consultant-popup {
+  position: fixed;
+  inset: 0;
+  z-index: var(--xingyu-z-modal);
+  display: grid;
+  place-items: center;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  background: rgb(0 0 0 / 55%);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  font-family: Sora, sans-serif;
+  color: var(--xingyu-ink);
+}
+
+.xingyu-consultant-popup[hidden] {
+  display: none;
+}
+
+.xingyu-consultant-popup.is-open {
+  opacity: 1;
+}
+
+.xingyu-consultant-popup__dialog {
+  position: relative;
+  width: min(100%, 28rem);
+  max-height: min(720px, calc(100dvh - 40px));
+  overflow: auto;
+  padding: 2rem 1.75rem 1.75rem;
+  border: 1px solid color-mix(in oklab, var(--xingyu-orange-100) 80%, transparent);
+  border-radius: 1.75rem;
+  background: rgb(255 255 255 / 95%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--xingyu-shadow);
+  text-align: center;
+  transform: translateY(10px) scale(0.985);
+  transition: transform 180ms ease;
+  outline: none;
+}
+
+.is-open .xingyu-consultant-popup__dialog {
+  transform: none;
+}
+
+.xingyu-consultant-popup__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  color: var(--xingyu-orange);
+  background: transparent;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.xingyu-consultant-popup__close:hover {
+  background: var(--xingyu-orange-50);
+  color: var(--xingyu-orange-500);
+}
+
+.xingyu-consultant-popup__close svg,
+.xingyu-consultant-popup__close-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke: currentColor;
+}
+
+.xingyu-consultant-popup__arrow {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: auto;
+  flex-shrink: 0;
+  stroke: var(--xingyu-orange-400);
+}
+
+.xingyu-consultant-popup__brand {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+}
+
+.xingyu-consultant-popup__logo {
+  width: 52px;
+  height: auto;
+  display: block;
+}
+
+.xingyu-consultant-popup__brand-name {
+  color: var(--xingyu-peru);
+  font-family: "Joly Display", Sora, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  margin-left: 0.28em;
+}
+
+.xingyu-consultant-popup__ornament {
+  width: 2rem;
+  height: 1px;
+  margin: 1rem auto 1.1rem;
+  background: var(--xingyu-orange-300);
+}
+
+.xingyu-consultant-popup h2 {
+  margin: 0;
+  color: #ff7210;
+  font-family: "Joly Display", Sora, sans-serif;
+  font-size: clamp(1.65rem, 5vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.xingyu-consultant-popup p {
+  max-width: 22rem;
+  margin: 0.75rem auto 0;
+  color: var(--xingyu-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.xingyu-consultant-popup__list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.5rem;
+}
+
+.xingyu-consultant-popup__consultant {
+  display: flex;
+  align-items: center;
+  min-height: 4.5rem;
+  padding: 0.7rem 1rem 0.7rem 0.75rem;
+  border: 1px solid var(--xingyu-orange-100);
+  border-radius: 0.75rem;
+  color: var(--xingyu-ink);
+  background: #fff;
+  text-align: left;
+  text-decoration: none;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.xingyu-consultant-popup__consultant:hover {
+  border-color: var(--xingyu-orange-300);
+  background: color-mix(in oklab, var(--xingyu-orange-50) 60%, white);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgb(251 146 60 / 12%);
+}
+
+.xingyu-consultant-popup__initial {
+  flex: 0 0 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(145deg, var(--xingyu-orange-400), var(--xingyu-orange));
+  font-family: "Joly Display", Sora, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.xingyu-consultant-popup__copy {
+  display: grid;
+  gap: 0.2rem;
+  margin-left: 0.8rem;
+  min-width: 0;
+}
+
+.xingyu-consultant-popup__copy strong {
+  color: var(--xingyu-orange);
+  font-family: "Joly Display", Sora, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.xingyu-consultant-popup__copy small {
+  color: var(--xingyu-soft);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.xingyu-consultant-popup :focus-visible {
+  outline: 2px solid var(--xingyu-orange-100);
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .xingyu-consultant-popup {
+    align-items: end;
+    padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .xingyu-consultant-popup__dialog {
+    max-height: calc(100dvh - 24px);
+    padding: 1.75rem 1.15rem 1.35rem;
+    border-radius: 1.5rem;
+  }
+
+  .xingyu-consultant-popup__consultant {
+    min-height: 4.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xingyu-consultant-popup,
+  .xingyu-consultant-popup__dialog,
+  .xingyu-consultant-popup__consultant {
+    transition: none;
+  }
+}

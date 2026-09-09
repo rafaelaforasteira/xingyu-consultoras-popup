@@ -1,4 +1,5 @@
 import './ConsultantPopup.css';
+import { createElement, ArrowRight, X } from 'lucide';
 import { defaults, type Consultant, type PopupOptions } from './config';
 import { localRotation } from './rotation';
 import { trackClick } from './analytics';
@@ -17,8 +18,19 @@ export class XingyuConsultantPopup {
   }
   static init(options: PopupOptions) { return new XingyuConsultantPopup(options); }
   private build() {
+    if (!document.querySelector('link[data-xingyu-sora]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap';
+      link.dataset.xingyuSora = 'true';
+      document.head.append(link);
+    }
     const overlay = document.createElement('div'); overlay.className = 'xingyu-consultant-popup'; overlay.hidden = true;
-    overlay.innerHTML = `<section class="xingyu-consultant-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="xingyu-popup-title" aria-describedby="xingyu-popup-description" tabindex="-1"><button class="xingyu-consultant-popup__close" type="button" aria-label="Fechar janela"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="xingyu-consultant-popup__brand">XINGYU</div><div class="xingyu-consultant-popup__ornament" aria-hidden="true"></div><h2 id="xingyu-popup-title">Fale com uma consultora</h2><p id="xingyu-popup-description">Escolha uma de nossas consultoras e continue seu atendimento pelo WhatsApp.</p><div class="xingyu-consultant-popup__list" aria-live="polite"></div></section>`;
+    overlay.innerHTML = `<section class="xingyu-consultant-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="xingyu-popup-title" aria-describedby="xingyu-popup-description" tabindex="-1"><button class="xingyu-consultant-popup__close" type="button" aria-label="Fechar janela"></button><div class="xingyu-consultant-popup__brand"><img class="xingyu-consultant-popup__logo" src="/logo-xy.png" alt="" width="52" height="52"><span class="xingyu-consultant-popup__brand-name">XINGYU</span></div><div class="xingyu-consultant-popup__ornament" aria-hidden="true"></div><h2 id="xingyu-popup-title">Fale com uma consultora</h2><p id="xingyu-popup-description">Escolha uma de nossas consultoras e continue seu atendimento pelo WhatsApp.</p><div class="xingyu-consultant-popup__list" aria-live="polite"></div></section>`;
+    const close = overlay.querySelector('.xingyu-consultant-popup__close')!;
+    const closeIcon = createElement(X, { class: 'xingyu-consultant-popup__close-icon', 'stroke-width': 1.5 });
+    closeIcon.setAttribute('aria-hidden', 'true');
+    close.append(closeIcon);
     return overlay;
   }
   private bind() {
@@ -41,9 +53,27 @@ export class XingyuConsultantPopup {
   close() { if (!this.isOpen) return; this.overlay.classList.remove('is-open'); this.isOpen = false; document.body.style.overflow = ''; document.body.style.paddingRight = this.scrollbarPadding; setTimeout(() => { if (!this.isOpen) this.overlay.hidden = true; }, 180); this.previousFocus?.focus(); }
   private render(items: Consultant[]) {
     const list = this.overlay.querySelector('.xingyu-consultant-popup__list')!; list.textContent = '';
-    items.forEach((item, index) => { const link = document.createElement('a'); link.className = 'xingyu-consultant-popup__consultant'; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.href = buildWhatsappUrl({ phone:item.whatsapp, message:buildWhatsappMessage({ consultantName:item.name, source:attribution().utm_source }) });
-      link.innerHTML = `<span class="xingyu-consultant-popup__initial" aria-hidden="true">${item.name.charAt(0)}</span><span class="xingyu-consultant-popup__copy"><strong>${item.name}</strong><small>Falar pelo WhatsApp</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>`;
-      link.addEventListener('click', () => trackClick(this.options.apiUrl, item.id, index + 1)); list.append(link); });
+    items.forEach((item, index) => {
+      const link = document.createElement('a');
+      link.className = 'xingyu-consultant-popup__consultant';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.href = buildWhatsappUrl({ phone: item.whatsapp, message: buildWhatsappMessage({ consultantName: item.name, source: attribution().utm_source }) });
+
+      const initial = Object.assign(document.createElement('span'), { className: 'xingyu-consultant-popup__initial', textContent: item.name.charAt(0) });
+      initial.setAttribute('aria-hidden', 'true');
+      const copy = document.createElement('span');
+      copy.className = 'xingyu-consultant-popup__copy';
+      copy.append(
+        Object.assign(document.createElement('strong'), { textContent: item.name }),
+        Object.assign(document.createElement('small'), { textContent: 'Falar pelo WhatsApp' }),
+      );
+      const arrow = createElement(ArrowRight, { class: 'xingyu-consultant-popup__arrow', 'stroke-width': 1.5 });
+      arrow.setAttribute('aria-hidden', 'true');
+      link.append(initial, copy, arrow);
+      link.addEventListener('click', () => trackClick(this.options.apiUrl, item.id, index + 1));
+      list.append(link);
+    });
   }
   private trapFocus(event: KeyboardEvent) { const nodes = [...this.dialog.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')]; if (!nodes.length) return; const first = nodes[0], last = nodes.at(-1)!; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); } }
 }
