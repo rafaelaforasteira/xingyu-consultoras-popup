@@ -222,7 +222,6 @@ body {
   border-radius: var(--xingyu-radius);
   background: color-mix(in oklab, var(--xingyu-orange-50) 60%, white);
   color: var(--xingyu-muted);
-  box-shadow: var(--xingyu-shadow);
 }
 
 .xingyu-consultants__notice-icon {
