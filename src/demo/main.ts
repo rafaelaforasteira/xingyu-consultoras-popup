@@ -1,6 +1,6 @@
 import './demo.css';
 import { createElement, ArrowRight, CircleAlert, Gem, Mouse, Sparkles } from 'lucide';
-import { consultants, type Consultant } from '../shared/consultants';
+import { consultants, officialContact, type Consultant } from '../shared/consultants';
 import { localRotation } from '../widget/rotation';
 import { attribution, trackClick } from '../widget/analytics';
 import { buildWhatsappMessage, buildWhatsappUrl } from '../shared/whatsapp';
@@ -66,39 +66,42 @@ async function getConsultants(): Promise<Consultant[]> {
   }
 }
 
+function createCard(item: { id: string; name: string; whatsapp: string }, index: number, official = false) {
+  const source = attribution().utm_source;
+  const link = document.createElement('a');
+  const message = buildWhatsappMessage({ consultantName: item.name, source });
+  link.className = official ? 'xingyu-consultants__card xingyu-consultants__card--official' : 'xingyu-consultants__card';
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.href = buildWhatsappUrl({ phone: item.whatsapp, message });
+  link.setAttribute('aria-label', `Falar com ${item.name} pelo WhatsApp`);
+
+  const avatar = Object.assign(document.createElement('span'), {
+    className: 'xingyu-consultants__avatar',
+    textContent: item.name[0],
+  });
+  avatar.setAttribute('aria-hidden', 'true');
+
+  const copy = document.createElement('span');
+  copy.className = 'xingyu-consultants__card-copy';
+  copy.append(
+    Object.assign(document.createElement('strong'), { textContent: item.name }),
+    Object.assign(document.createElement('small'), { textContent: 'Falar pelo WhatsApp' }),
+  );
+
+  const arrow = icon(ArrowRight, { class: 'xingyu-consultants__card-arrow', 'stroke-width': 1.5 });
+  arrow.setAttribute('aria-hidden', 'true');
+
+  link.append(avatar, copy, arrow);
+  link.addEventListener('click', () => trackClick('', item.id, index + 1));
+  return link;
+}
+
 function render(items: Consultant[]) {
   const list = document.querySelector<HTMLDivElement>('#consultants-list')!;
   list.textContent = '';
-  const source = attribution().utm_source;
-  items.forEach((consultant, index) => {
-    const link = document.createElement('a');
-    const message = buildWhatsappMessage({ consultantName: consultant.name, source });
-    link.className = 'xingyu-consultants__card';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.href = buildWhatsappUrl({ phone: consultant.whatsapp, message });
-    link.setAttribute('aria-label', `Falar com ${consultant.name} pelo WhatsApp`);
-
-    const avatar = Object.assign(document.createElement('span'), {
-      className: 'xingyu-consultants__avatar',
-      textContent: consultant.name[0],
-    });
-    avatar.setAttribute('aria-hidden', 'true');
-
-    const copy = document.createElement('span');
-    copy.className = 'xingyu-consultants__card-copy';
-    copy.append(
-      Object.assign(document.createElement('strong'), { textContent: consultant.name }),
-      Object.assign(document.createElement('small'), { textContent: 'Falar pelo WhatsApp' }),
-    );
-
-    const arrow = icon(ArrowRight, { class: 'xingyu-consultants__card-arrow', 'stroke-width': 1.5 });
-    arrow.setAttribute('aria-hidden', 'true');
-
-    link.append(avatar, copy, arrow);
-    link.addEventListener('click', () => trackClick('', consultant.id, index + 1));
-    list.append(link);
-  });
+  items.forEach((consultant, index) => list.append(createCard(consultant, index)));
+  list.append(createCard(officialContact, items.length, true));
 }
 
 buildTicker();

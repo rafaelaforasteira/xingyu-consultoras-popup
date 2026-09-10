@@ -3,11 +3,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { resolve } from 'node:path';
-import { activeConsultants, consultants } from '../shared/consultants.js';
+import { activeConsultants, consultants, officialContact } from '../shared/consultants.js';
 import { rotate } from '../shared/rotation.js';
 import { createDatabase, type XingyuDatabase } from './database.js';
 import { claimRotationCounter } from './rotation-repository.js';
 const textFields = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'referrer'] as const;
+
+function isValidClick(consultantId: unknown, position: unknown): boolean {
+  if (typeof consultantId !== 'string' || !Number.isInteger(position) || Number(position) < 1) return false;
+  if (consultantId === officialContact.id) return true;
+  return consultants.some(c => c.active && c.id === consultantId) && Number(position) <= activeConsultants().length;
+}
+
 export function createApp(db: XingyuDatabase = createDatabase()) {
   const app = express();
   const allowed = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173,http://localhost:5178,https://consultoras.xingyujewelry.com.br,https://lp.xingyujewelry.com.br').split(',').map(v => v.trim());
@@ -26,9 +33,9 @@ export function createApp(db: XingyuDatabase = createDatabase()) {
   } catch (error) { next(error); } });
   app.post('/api/events/click', (req, res) => {
     const body = req.body as Record<string, unknown> | undefined; const consultantId = body?.consultantId; const position = body?.position;
-    if (typeof consultantId !== 'string' || !consultants.some(c => c.active && c.id === consultantId) || !Number.isInteger(position) || Number(position) < 1 || Number(position) > activeConsultants().length) { res.status(400).json({ error: 'Invalid event payload' }); return; }
+    if (!isValidClick(consultantId, position)) { res.status(400).json({ error: 'Invalid event payload' }); return; }
     const values = textFields.map(key => typeof body?.[key] === 'string' ? String(body[key]).slice(0, 500) : null);
-    db.prepare('INSERT INTO consultant_clicks (consultant_id, position, utm_source, utm_medium, utm_campaign, utm_content, utm_term, referrer, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(consultantId, Number(position), ...values, new Date().toISOString());
+    db.prepare('INSERT INTO consultant_clicks (consultant_id, position, utm_source, utm_medium, utm_campaign, utm_content, utm_term, referrer, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(String(consultantId), Number(position), ...values, new Date().toISOString());
     console.info('[click]', { consultantId, position }); res.status(204).end();
   });
   app.use(express.static(resolve('dist')));

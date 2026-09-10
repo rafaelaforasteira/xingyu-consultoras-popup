@@ -156,6 +156,12 @@
   box-shadow: 0 8px 20px rgb(251 146 60 / 12%);
 }
 
+.xingyu-consultant-popup__consultant--official {
+  margin-top: 0.35rem;
+  border-color: var(--xingyu-orange-200);
+  background: color-mix(in oklab, var(--xingyu-orange-50) 45%, white);
+}
+
 .xingyu-consultant-popup__initial {
   flex: 0 0 2.75rem;
   height: 2.75rem;
@@ -198,8 +204,8 @@
 
 @media (max-width: 520px) {
   .xingyu-consultant-popup {
-    align-items: end;
-    padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+    place-items: center;
+    padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
   }
 
   .xingyu-consultant-popup__dialog {

@@ -5,6 +5,7 @@ import { localRotation } from './rotation';
 import { trackClick } from './analytics';
 import { attribution } from './analytics';
 import { buildWhatsappMessage, buildWhatsappUrl } from '../shared/whatsapp';
+import { officialContact } from '../shared/consultants';
 
 const FONT_FILES = [
   { file: 'JolyDisplay-Regular.otf', weight: 400 },
@@ -72,29 +73,41 @@ export class XingyuConsultantPopup {
     } finally { this.opening = false; this.trigger.removeAttribute('aria-busy'); }
   }
   close() { if (!this.isOpen) return; this.overlay.classList.remove('is-open'); this.isOpen = false; document.body.style.overflow = ''; document.body.style.paddingRight = this.scrollbarPadding; setTimeout(() => { if (!this.isOpen) this.overlay.hidden = true; }, 180); this.previousFocus?.focus(); }
-  private render(items: Consultant[]) {
-    const list = this.overlay.querySelector('.xingyu-consultant-popup__list')!; list.textContent = '';
-    items.forEach((item, index) => {
-      const link = document.createElement('a');
-      link.className = 'xingyu-consultant-popup__consultant';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.href = buildWhatsappUrl({ phone: item.whatsapp, message: buildWhatsappMessage({ consultantName: item.name, source: attribution().utm_source }) });
-
-      const initial = Object.assign(document.createElement('span'), { className: 'xingyu-consultant-popup__initial', textContent: item.name.charAt(0) });
-      initial.setAttribute('aria-hidden', 'true');
-      const copy = document.createElement('span');
-      copy.className = 'xingyu-consultant-popup__copy';
-      copy.append(
-        Object.assign(document.createElement('strong'), { textContent: item.name }),
-        Object.assign(document.createElement('small'), { textContent: 'Falar pelo WhatsApp' }),
-      );
-      const arrow = createElement(ArrowRight, { class: 'xingyu-consultant-popup__arrow', 'stroke-width': 1.5 });
-      arrow.setAttribute('aria-hidden', 'true');
-      link.append(initial, copy, arrow);
-      link.addEventListener('click', () => trackClick(this.options.apiUrl, item.id, index + 1));
-      list.append(link);
+  private createRow(item: { id: string; name: string; whatsapp: string }, index: number, official = false) {
+    const link = document.createElement('a');
+    link.className = official
+      ? 'xingyu-consultant-popup__consultant xingyu-consultant-popup__consultant--official'
+      : 'xingyu-consultant-popup__consultant';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.href = buildWhatsappUrl({
+      phone: item.whatsapp,
+      message: buildWhatsappMessage({ consultantName: item.name, source: attribution().utm_source }),
     });
+    link.setAttribute('aria-label', `Falar com ${item.name} pelo WhatsApp`);
+
+    const initial = Object.assign(document.createElement('span'), {
+      className: 'xingyu-consultant-popup__initial',
+      textContent: item.name.charAt(0),
+    });
+    initial.setAttribute('aria-hidden', 'true');
+    const copy = document.createElement('span');
+    copy.className = 'xingyu-consultant-popup__copy';
+    copy.append(
+      Object.assign(document.createElement('strong'), { textContent: item.name }),
+      Object.assign(document.createElement('small'), { textContent: 'Falar pelo WhatsApp' }),
+    );
+    const arrow = createElement(ArrowRight, { class: 'xingyu-consultant-popup__arrow', 'stroke-width': 1.5 });
+    arrow.setAttribute('aria-hidden', 'true');
+    link.append(initial, copy, arrow);
+    link.addEventListener('click', () => trackClick(this.options.apiUrl, item.id, index + 1));
+    return link;
+  }
+  private render(items: Consultant[]) {
+    const list = this.overlay.querySelector('.xingyu-consultant-popup__list')!;
+    list.textContent = '';
+    items.forEach((item, index) => list.append(this.createRow(item, index)));
+    list.append(this.createRow(officialContact, items.length, true));
   }
   private trapFocus(event: KeyboardEvent) { const nodes = [...this.dialog.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')]; if (!nodes.length) return; const first = nodes[0], last = nodes.at(-1)!; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); } }
 }

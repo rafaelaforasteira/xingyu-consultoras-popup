@@ -26,7 +26,7 @@ Para testar o build servido pelo backend: `npm run build`, `npm start` e abra `h
 
 ## Consultoras
 
-Edite somente `src/shared/consultants.ts`. Ali ficam nome, telefone, `active` e ordem base. Use telefone internacional somente com dígitos. Adicione um objeto para incluir; use `active: false` para retirar do rodízio. A configuração atual contém Vane, May, Cris e Deise.
+Edite somente `src/shared/consultants.ts`. Ali ficam nome, telefone, `active` e ordem base. Use telefone internacional somente com dígitos. Adicione um objeto para incluir; use `active: false` para retirar do rodízio. A configuração atual contém Vane, May, Cris e Deise. O botão fixo `officialContact` (Suporte/Garantia → `+1 555 733-8719`) fica sempre no final da lista e não entra no rodízio.
 
 ## UTMs e WhatsApp
 
