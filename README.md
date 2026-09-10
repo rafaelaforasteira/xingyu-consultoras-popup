@@ -58,18 +58,53 @@ Variáveis em `.env.example`: `PORT`, `DATABASE_PATH`, `ALLOWED_ORIGINS` e `PUBL
 
 ## API de incorporação
 
+### Script embed (outra página / LinkPage)
+
+Depois do deploy, cole na página externa (substitua o domínio e o seletor do botão):
+
+```html
+<button type="button" id="falar-com-consultora">Falar com consultora</button>
+<script
+  src="https://consultoras.xingyujewelry.com.br/embed/xingyu-popup.js"
+  data-trigger="#falar-com-consultora"
+  data-api-url="https://consultoras.xingyujewelry.com.br"
+  defer
+></script>
+```
+
+- `data-trigger` — seletor CSS do botão que abre o modal (obrigatório para auto-init).
+- `data-api-url` — origem da API; se omitido, usa a origem do próprio script.
+- Assets gerados em `dist/embed/xingyu-popup.js` + `.css` (logo/fontes vêm do host da API).
+- Teste local após `npm run build` + `npm start`: `http://localhost:5178/embed-test.html`.
+
+Também dá para inicializar manualmente:
+
+```html
+<script src="https://consultoras.xingyujewelry.com.br/embed/xingyu-popup.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    XingyuConsultantPopup.init({
+      trigger: '#falar-com-consultora',
+      apiUrl: 'https://consultoras.xingyujewelry.com.br',
+    });
+  });
+</script>
+```
+
+### Import no bundle
+
 ```ts
 import { XingyuConsultantPopup } from './widget/ConsultantPopup';
 XingyuConsultantPopup.init({ trigger: '#falar-com-consultora', apiUrl: 'https://api.seu-dominio.com' });
 ```
 
-Também aceita `consultants` e `message`. O CSS usa namespace `xingyu-consultant-popup` e tokens prefixados `--xingyu-`.
+O CSS usa namespace `xingyu-consultant-popup` e tokens prefixados `--xingyu-`.
 
-## Integração futura com a LinkPage Xingyu
+## Integração com a LinkPage Xingyu
 
 1. Hospede o backend com volume persistente e permita `https://consultoras.xingyujewelry.com.br` e `https://lp.xingyujewelry.com.br` em `ALLOWED_ORIGINS`.
-2. Importe o widget no bundle da LinkPage ou publique seu build como asset.
-3. Inicialize no botão real, passando seu seletor e a URL pública da API.
+2. Publique o build (`/embed/xingyu-popup.js`) ou importe o widget no bundle da LinkPage.
+3. No botão real, use o snippet acima (ou `init` com o seletor e a URL pública da API).
 4. Valide CORS, UTMs, foco e WhatsApp em homologação.
 
 Não há painel, CRM, WhatsApp API, autenticação ou credenciais neste projeto.

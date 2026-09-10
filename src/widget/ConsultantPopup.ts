@@ -1,10 +1,17 @@
 import './ConsultantPopup.css';
 import { createElement, ArrowRight, X } from 'lucide';
-import { defaults, type Consultant, type PopupOptions } from './config';
+import { defaults, resolveAssetOrigin, type Consultant, type PopupOptions } from './config';
 import { localRotation } from './rotation';
 import { trackClick } from './analytics';
 import { attribution } from './analytics';
 import { buildWhatsappMessage, buildWhatsappUrl } from '../shared/whatsapp';
+
+const FONT_FILES = [
+  { file: 'JolyDisplay-Regular.otf', weight: 400 },
+  { file: 'JolyDisplay-Medium.otf', weight: 500 },
+  { file: 'JolyDisplay-Bold.otf', weight: 700 },
+  { file: 'JolyDisplay-Black.otf', weight: 900 },
+] as const;
 
 export class XingyuConsultantPopup {
   private trigger: HTMLElement; private overlay: HTMLDivElement; private dialog: HTMLElement;
@@ -14,9 +21,22 @@ export class XingyuConsultantPopup {
     const trigger = typeof options.trigger === 'string' ? document.querySelector<HTMLElement>(options.trigger) : options.trigger;
     if (!trigger) throw new Error('Xingyu popup trigger not found'); this.trigger = trigger;
     this.options = { apiUrl: options.apiUrl ?? defaults.apiUrl, consultants: options.consultants ?? defaults.consultants };
+    this.injectBrandAssets();
     this.overlay = this.build(); this.dialog = this.overlay.querySelector('[role="dialog"]')!; document.body.append(this.overlay); this.bind();
   }
   static init(options: PopupOptions) { return new XingyuConsultantPopup(options); }
+  private assetOrigin() { return resolveAssetOrigin(this.options.apiUrl); }
+  private injectBrandAssets() {
+    if (document.querySelector('style[data-xingyu-fonts]')) return;
+    const origin = this.assetOrigin();
+    if (!origin) return;
+    const style = document.createElement('style');
+    style.dataset.xingyuFonts = 'true';
+    style.textContent = FONT_FILES.map(({ file, weight }) =>
+      `@font-face{font-family:"Joly Display";src:url("${origin}/fonts/${file}") format("opentype");font-weight:${weight};font-style:normal;font-display:swap}`,
+    ).join('');
+    document.head.append(style);
+  }
   private build() {
     if (!document.querySelector('link[data-xingyu-sora]')) {
       const link = document.createElement('link');
@@ -25,8 +45,9 @@ export class XingyuConsultantPopup {
       link.dataset.xingyuSora = 'true';
       document.head.append(link);
     }
+    const logoSrc = `${this.assetOrigin()}/logo-xy.png`;
     const overlay = document.createElement('div'); overlay.className = 'xingyu-consultant-popup'; overlay.hidden = true;
-    overlay.innerHTML = `<section class="xingyu-consultant-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="xingyu-popup-title" aria-describedby="xingyu-popup-description" tabindex="-1"><button class="xingyu-consultant-popup__close" type="button" aria-label="Fechar janela"></button><div class="xingyu-consultant-popup__brand"><img class="xingyu-consultant-popup__logo" src="/logo-xy.png" alt="" width="52" height="52"><span class="xingyu-consultant-popup__brand-name">XINGYU</span></div><div class="xingyu-consultant-popup__ornament" aria-hidden="true"></div><h2 id="xingyu-popup-title">Fale com uma consultora</h2><p id="xingyu-popup-description">Escolha uma de nossas consultoras e continue seu atendimento pelo WhatsApp.</p><div class="xingyu-consultant-popup__list" aria-live="polite"></div></section>`;
+    overlay.innerHTML = `<section class="xingyu-consultant-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="xingyu-popup-title" aria-describedby="xingyu-popup-description" tabindex="-1"><button class="xingyu-consultant-popup__close" type="button" aria-label="Fechar janela"></button><div class="xingyu-consultant-popup__brand"><img class="xingyu-consultant-popup__logo" src="${logoSrc}" alt="" width="52" height="52"><span class="xingyu-consultant-popup__brand-name">XINGYU</span></div><div class="xingyu-consultant-popup__ornament" aria-hidden="true"></div><h2 id="xingyu-popup-title">Fale com uma consultora</h2><p id="xingyu-popup-description">Escolha uma de nossas consultoras e continue seu atendimento pelo WhatsApp.</p><div class="xingyu-consultant-popup__list" aria-live="polite"></div></section>`;
     const close = overlay.querySelector('.xingyu-consultant-popup__close')!;
     const closeIcon = createElement(X, { class: 'xingyu-consultant-popup__close-icon', 'stroke-width': 1.5 });
     closeIcon.setAttribute('aria-hidden', 'true');

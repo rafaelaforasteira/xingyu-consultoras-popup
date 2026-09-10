@@ -29,6 +29,7 @@ export function createApp(db: XingyuDatabase = createDatabase()) {
     console.info('[click]', { consultantId, position }); res.status(204).end();
   });
   app.use(express.static(resolve('dist')));
+  app.use(express.static(resolve('public')));
   app.use((error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => { void next; console.error('[server-error]', error); res.status(500).json({ error: 'Internal server error' }); });
   return app;
 }

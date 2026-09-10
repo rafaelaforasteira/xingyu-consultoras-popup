@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "concurrently -k \"vite\" \"tsx watch src/server/index.ts\"",
     "start": "tsx src/server/index.ts",
-    "build": "vite build",
+    "build": "vite build && vite build --config vite.widget.config.ts",
+    "build:widget": "vite build --config vite.widget.config.ts",
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
