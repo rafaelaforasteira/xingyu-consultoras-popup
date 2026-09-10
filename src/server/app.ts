@@ -11,7 +11,10 @@ const textFields = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', '
 export function createApp(db: XingyuDatabase = createDatabase()) {
   const app = express();
   const allowed = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173,http://localhost:5178,https://consultoras.xingyujewelry.com.br,https://lp.xingyujewelry.com.br').split(',').map(v => v.trim());
-  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }));
   app.use(cors({ origin: (origin, callback) => callback(null, !origin || allowed.includes(origin)) }));
   app.use(express.json({ limit: '8kb' }));
   app.use('/api', rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false }));
